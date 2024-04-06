@@ -1,0 +1,45 @@
+model_config:
+  encoder_config:
+    d_model: 256
+    nhead: 4
+    num_layers: 2
+    activation: 'gelu'
+    cate_feature_num:
+    - 3
+    - 70
+    - 11
+    - 2
+    - 2
+    - 2
+    - 3
+    - 2
+    - 2
+  pred_config:
+    d_model: 256
+    nhead: 4
+    num_layers: 1
+    input_dim: 256
+    output_dim: 256
+train_config:
+  batch_size: 512
+  num_epochs: 100
+  learning_rate: 0.001
+  final_lr: 1.0e-06
+  start_lr: 0.0002
+  weight_decay: 0.0001
+  optimizer: 'adamw'
+  scheduler: 'cosine'
+  warmup_steps: 1000
+  early_stop_patience: 10
+  device: 'cuda'
+  mask_len: 8
+  train_data_path: './transformers/datasets/data/kddcup_train.csv'
+  valid_data_path: './transformers/datasets/data/kddcup_valid.csv'
+  test_data_path: './transformers/datasets/data/kddcup_test.csv'
+  seq_len: 41
+  num_workers: 1
+  ema:
+  - 0.996
+  - 1.0
+  save_path: './transformers/saved_models/'
+  log_interval: 500
