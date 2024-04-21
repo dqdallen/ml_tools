@@ -60,7 +60,7 @@ def main_process():
     # optimizer and scheduler
     model_params = list(src_encoder.parameters()) + list(pred.parameters()) + list(targ_encoder.parameters())
     optimizer = AdamW(model_params, lr=config.train_config.learning_rate, weight_decay=config.train_config.weight_decay)
-    scheduler = WarmupCosineSchedule(optimizer, config.train_config.warmup_steps, config.train_config.start_lr, config.train_config.learning_rate, T_max=(1.25*config.train_config.num_epochs*len(train_loader)), final_lr=config.train_config.final_lr)
+    scheduler = WarmupCosineSchedule(optimizer, int(config.train_config.warmup_steps*len(train_loader)), config.train_config.start_lr, config.train_config.learning_rate, T_max=(1.25*config.train_config.num_epochs*len(train_loader)), final_lr=config.train_config.final_lr)
     # -- momentum schedule
     momentum_scheduler = (ema[0] + i*(ema[1]-ema[0])/(1.25*config.train_config.num_epochs*len(train_loader))
                           for i in range(int(1.25*config.train_config.num_epochs*len(train_loader))+1))
@@ -85,11 +85,10 @@ def train_epoch(tjepa, optimizer, scheduler, momentum_scheduler, train_loader, l
     tjepa.train()
     total_loss = 0
     mask_len = config.train_config.mask_len
-    for i, batch in tqdm(enumerate(train_loader)):
+    for i, batch in enumerate(tqdm(train_loader)):
         scheduler.step()
         data, label = batch
         data = data.to(config.train_config.device)
-        data = torch.zeros_like(data)
         _, loss = tjepa(data)
 
         loss.backward()
@@ -109,7 +108,7 @@ def valid_epoch(tjepa, valid_loader, config):
     tjepa.eval()
     total_loss = 0
     with torch.no_grad():
-        for i, batch in tqdm(enumerate(valid_loader)):
+        for i, batch in enumerate(tqdm(valid_loader)):
             data, label = batch
             data = data.to(config.train_config.device)
             _, loss = tjepa(data)
